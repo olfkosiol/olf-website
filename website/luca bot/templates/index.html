@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <style>
+        body {
+            background-color: #2e2e2e;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #messages li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        .message-user {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+            margin-left: auto;
+        }
+        .message-bot {
+            background-color: #444;
+            color: white;
+            align-self: flex-start;
+            text-align: left;
+            margin-right: auto;
+        }
+        #chat-form {
+            display: flex;
+            margin-top: 20px;
+        }
+        #m {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #444;
+            color: white;
+        }
+        #chat-form button {
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <ul id="messages"></ul>
+        <form id="chat-form">
+            <input id="m" autocomplete="off" placeholder="Schreiben Sie Ihre Nachricht..." /><button>Senden</button>
+        </form>
+    </div>
+    <script>
+        var socket = io();
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var input = document.getElementById('m');
+            var message = input.value;
+            if (message) {
+                socket.emit('chat message', message);
+                input.value = '';
+            }
+            return false;
+        });
+
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            item.classList.add('message-user');
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on('bot response', function(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            item.classList.add('message-bot');
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+</body>
+</html>
